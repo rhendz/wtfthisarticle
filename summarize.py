@@ -1,8 +1,8 @@
 # Handles summarization
 import heapq
 import nltk
-# nltk.download('punkt')
-# nltk.download('stopwords')
+nltk.download('punkt')
+nltk.download('stopwords')
 
 import json
 import re

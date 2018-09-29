@@ -1,8 +1,14 @@
+from typing import List, Any
+
 from bs4 import BeautifulSoup
 from newspaper import Article
+from google import google
+import requests
 import datetime
 import json
 import re
+import nltk
+nltk.download('punkt')
 
 # Custom scripts
 from summarize import *
@@ -49,11 +55,15 @@ def getAuthor(article):
 
 def getInitJSON(Url):
     ## BEGIN BUILDING INITIAL ARTICLE
-    article = Article(Url) # Instantiate article
+    article = Article(Url.strip()) # Instantiate article
     article.download() # Required
     article.parse() # Required
 
     title = article.title
+    # for counter, _ in enumerate (title[::-1]):
+    #     if (title[counter] == '-'):
+    #         title = title[:counter]
+    #         break
 
     author_head = article.authors ## Sometimes this fnc. does not work
     if len(author_head) == 0:
@@ -84,5 +94,11 @@ def getInitJSON(Url):
 
     if text is not None or text != '':
         summarize(text)
+
+    num_page = 2
+    search_results = google.search(title, num_page)
+    for result in search_results:
+        with open('json/relatedLinks.json', 'w') as outfile:
+            json.dump(result.link, outfile)
 
 getInitJSON(input("Enter a Url: \n"))

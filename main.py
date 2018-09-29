@@ -3,7 +3,7 @@ import re # regular expressions
 import requests
 from bs4 import BeautifulSoup
 
-AUTHOR_REGEX = re.compile('(author)|(byline)|(name)')
+AUTHOR_REGEX = re.compile('(author)|(byline)', re.I) # Ignore case
 
 # Get author
 # Still kind of spotty - does not grab all authors,
@@ -12,36 +12,32 @@ def getAuthor(soupObj):
     # Returns first occurrence of matched AUTHOR_REGEX
     matched_expr = soupObj.find('', {'class' : AUTHOR_REGEX})
 
-    # Try the itemprop
+    # Try itemprop
     if matched_expr is None:
         matched_expr = soupObj.find('', {'itemprop' : AUTHOR_REGEX})
 
-    # If still None, return
+    # Try href
+    if matched_expr is None:
+        matched_expr = soupObj.find('', {'href' : re.compile('profile', re.I)})
+
+    # Nothing left to check, returns
     if matched_expr is None:
         return "No Author Found"
 
-    thing = []
-    for child in matched_expr.findChildren():
-        tmp = child.get_text()
-        if (tmp is not ''): thing.append(tmp)
+    # Find firstmost child
+    while matched_expr.findChild() is not None:
+        matched_expr = matched_expr.findChild()
 
-    print(thing)
-
-    # # Find firstmost child
-    # while matched_expr.findChild() is not None:
-    #     matched_expr = matched_expr.findChild()
-    #
-    # if matched_expr is not None:
-    #     return matched_expr.get_text()
-    # else:
-    #     return "No Author Found"
+    if matched_expr is not None:
+        return re.sub(r'By ', '', matched_expr.get_text())
+    else:
+        return "No Author Found"
 
 def getInitJSON(Url):
     r = requests.get(Url)
     data = r.text
     soup = BeautifulSoup(data, 'html.parser')
-
-    print(getAuthor(soup))
+    author = getAuthor(soup)
 
     # # Get title
     # title = soup.title.get_text()

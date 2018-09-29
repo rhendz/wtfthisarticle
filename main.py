@@ -1,63 +1,51 @@
+from bs4 import BeautifulSoup
 from newspaper import Article
 import datetime
 import json
-
-# Handles summarization
-import heapq
-import nltk
-# nltk.download('punkt')
-# nltk.download('stopwords')
 import re
 
+# Custom scripts
+from summarize import *
+
+## Useful for extracting author if newspaper fails
+AUTHOR_REGEX = re.compile('(author)|(byline)', re.I) # Ignore case
+
 article_data = {
-    'title': 'No title found,',
-    'author': 'No author found.',
-    'publish_date': 'No publish date found.',
-    'img_src': 'No image source found.',
-    'text': 'No text found.'
+    'title': -1,
+    'author': -1,
+    'publish_date': -1,
+    'img_src': -1,
+    'text': -1
 }
 
-def summarize(text):
-    text = re.sub(r'\[[0-9]*\]', ' ', text)
-    text = re.sub(r'\s+', ' ', text)
+# This fnc has a much higher success rate at finding the author
+def getAuthor(article):
+    # Must turn article into a soup obj
+    soupObj = BeautifulSoup(article.html, 'html.parser')
 
-    # formatted text
-    ftext = re.sub('[^a-zA-Z]', ' ', text)
-    ftext = re.sub(r'\s+', ' ', ftext)
+    # Returns first occurrence of matched AUTHOR_REGEX
+    matched_expr = soupObj.find('', {'class' : AUTHOR_REGEX})
 
-    sentence_list = nltk.sent_tokenize(text)
+    # Try itemprop
+    if matched_expr is None:
+        matched_expr = soupObj.find('', {'itemprop' : AUTHOR_REGEX})
 
-    stopwords = nltk.corpus.stopwords.words('english')
+    # Try href
+    if matched_expr is None:
+        matched_expr = soupObj.find('', {'href' : re.compile('profile', re.I)})
 
-    word_frequencies = {}
-    for word in nltk.word_tokenize(ftext):
-        if word not in stopwords:
-            if word not in word_frequencies.keys():
-                word_frequencies[word] = 1
-            else:
-                word_frequencies[word] += 1
+    # Nothing left to check, returns
+    if matched_expr is None:
+        return -1
 
-    maximum_frequncy = max(word_frequencies.values())
+    # Find firstmost child
+    while matched_expr.findChild() is not None:
+        matched_expr = matched_expr.findChild()
 
-    for word in word_frequencies.keys():
-        word_frequencies[word] = (word_frequencies[word]/maximum_frequncy)
-
-    sentence_scores = {}
-    for sent in sentence_list:
-        for word in nltk.word_tokenize(sent.lower()):
-            if word in word_frequencies.keys():
-                if len(sent.split(' ')) < 30:
-                    if sent not in sentence_scores.keys():
-                        sentence_scores[sent] = word_frequencies[word]
-                    else:
-                        sentence_scores[sent] += word_frequencies[word]
-
-    summary_sentences = heapq.nlargest(7, sentence_scores, key=sentence_scores.get)
-
-    summary = {}
-    summary['summary'] = ' '.join(summary_sentences)
-    with open('json/summary.json', 'w') as outfile:
-        json.dump(summary, outfile)
+    if matched_expr is not None:
+        return re.sub(r'By ', '', matched_expr.get_text())
+    else:
+        return -1
 
 def getInitJSON(Url):
     ## BEGIN BUILDING INITIAL ARTICLE
@@ -66,7 +54,14 @@ def getInitJSON(Url):
     article.parse() # Required
 
     title = article.title
-    author_head = article.authors[0] # This does not correctly parse all the time
+
+    author_head = article.authors ## Sometimes this fnc. does not work
+    if len(author_head) == 0:
+        print("custom usage triggered\n")
+        author_head = getAuthor(article) # Try again w my fnc
+    else:
+        author_head = article.authors[0]
+
     publish_date = article.publish_date
     img_src = article.top_image
     summary = article.summary
@@ -86,5 +81,8 @@ def getInitJSON(Url):
 
     with open('json/init.json', 'w') as outfile:
         json.dump(article_data, outfile)
+
+    if text is not None or text != '':
+        summarize(text)
 
 getInitJSON(input("Enter a Url: \n"))

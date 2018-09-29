@@ -6,6 +6,7 @@ import re
 
 # Custom scripts
 from summarize import *
+from sentiment import *
 
 ## Useful for extracting author if newspaper fails
 AUTHOR_REGEX = re.compile('(author)|(byline)', re.I) # Ignore case
@@ -57,7 +58,6 @@ def getInitJSON(Url):
 
     author_head = article.authors ## Sometimes this fnc. does not work
     if len(author_head) == 0:
-        print("custom usage triggered\n")
         author_head = getAuthor(article) # Try again w my fnc
     else:
         author_head = article.authors[0]
@@ -84,5 +84,8 @@ def getInitJSON(Url):
 
     if text is not None or text != '':
         summarize(text)
+
+    # Sentiment analysis
+    analyze(text);
 
 getInitJSON(input("Enter a Url: \n"))

@@ -3,13 +3,16 @@ import re # regular expressions
 import requests
 from bs4 import BeautifulSoup
 
-AUTHOR_REGEX = re.compile('.author.')
+AUTHOR_REGEX = re.compile('author')
 
 # Get author
 def getAuthor(soupObj):
     # Returns first occurrence of matched AUTHOR_REGEX
-    for elem in soupObj.findAll('', {'class' : AUTHOR_REGEX}, text=True):
-        if elem is not None: return elem.get_text()
+    matched_expr = soupObj.find('', {'class' : AUTHOR_REGEX}, text=True)
+    if matched_expr is not None:
+        return matched_expr.get_text()
+    else:
+        return "No Author"
 
 def getInitJSON(Url):
     r = requests.get(Url)

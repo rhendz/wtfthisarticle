@@ -1,68 +1,29 @@
+from newspaper import Article
+import datetime
 import json
-import re # regular expressions
-import requests
-from bs4 import BeautifulSoup
-
-AUTHOR_REGEX = re.compile('(author)|(byline)|(name)')
-
-# Get author
-# Still kind of spotty - does not grab all authors,
-# For example, https://www.nytimes.com/2018/09/28/us/politics/brett-kavanaugh-fact-check.html?action=click&module=Spotlight&pgtype=Homepage
-def getAuthor(soupObj):
-    # Returns first occurrence of matched AUTHOR_REGEX
-    matched_expr = soupObj.find('', {'class' : AUTHOR_REGEX})
-
-    # Try the itemprop
-    if matched_expr is None:
-        matched_expr = soupObj.find('', {'itemprop' : AUTHOR_REGEX})
-
-    # If still None, return
-    if matched_expr is None:
-        return "No Author Found"
-
-    thing = []
-    for child in matched_expr.findChildren():
-        tmp = child.get_text()
-        if (tmp is not ''): thing.append(tmp)
-
-    print(thing)
-
-    # # Find firstmost child
-    # while matched_expr.findChild() is not None:
-    #     matched_expr = matched_expr.findChild()
-    #
-    # if matched_expr is not None:
-    #     return matched_expr.get_text()
-    # else:
-    #     return "No Author Found"
 
 def getInitJSON(Url):
-    r = requests.get(Url)
-    data = r.text
-    soup = BeautifulSoup(data, 'html.parser')
+    ## BEGIN BUILDING INITIAL ARTICLE
+    article_data = {}
+    article = Article(Url) # Instantiate article
+    article.download() # Required
+    article.parse() # Required
 
-    print(getAuthor(soup))
+    title = article.title
+    author_head = article.authors[0] # This does not correctly parse all the time
+    publish_date = article.publish_date;
+    img_src = article.top_image;
+    text = article.text;
 
-    # # Get title
-    # title = soup.title.get_text()
-    # print(title)
-    #
-    # # Get author
-    # author = getAuthor(soup)
-    #
-    # # Get header image
-    # imageSrc = soup.img.get("src")
-    # print(imageSrc)
-    # # Get text
-    # print(soup.get_text())
-    #
-    # # Get author name
-    #
-    # initJSON = {
-    #     'title': title,
-    #     'author': author,
-    #     'imageHeader': imageSrc,
-    #     'text':
-    # }
+    article_data['title'] = title
+    article_data['author'] = author_head
+    # datetime objs are not serializable
+    article_data['publish_date'] = publish_date.strftime("%Y-%m-%d")
+    article_data['img_src'] = img_src
+    article_data['text'] = text
+    ## END BUILDING INITIAL ARTICLE
+    
+    with open('json/init.json', 'w') as outfile:
+        json.dump(article_data, outfile)
 
 getInitJSON(input("Enter a Url: \n"))

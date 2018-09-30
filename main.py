@@ -101,6 +101,7 @@ def getInitJSON(Url):
     for result in search_results:
         with open('json/relatedLinks.json', 'w') as outfile:
             json.dump(result.link, outfile)
+        with open('json/linkDescriptions.json', 'w') as outfile:
             json.dump(result.description, outfile)
 
 getInitJSON(input("Enter a Url: \n"))

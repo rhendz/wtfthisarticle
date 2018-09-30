@@ -104,4 +104,21 @@ def getInitJSON(Url):
     analyze(text);
 
 
+    ## Search google for related articles and record descriptions and links
+    num_page = 2
+    search_results = google.search(title, num_page)
+    for result in search_results:
+        with open('json/relatedLinks.json', 'w') as outfile:
+            json.dump(result.link, outfile)
+            json.dump(result.description, outfile)
+
+    ## Search google for related articles and record descriptions and links
+    num_page = 2
+    search_results = google.search(title, num_page)
+    for result in search_results:
+        with open('json/relatedLinks.json', 'w') as outfile:
+            json.dump(result.link, outfile)
+        with open('json/linkDescriptions.json', 'w') as outfile:
+            json.dump(result.description, outfile)
+
 getInitJSON(input("Enter a Url: \n"))

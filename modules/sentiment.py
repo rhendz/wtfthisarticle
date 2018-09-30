@@ -25,5 +25,5 @@ def analyze(text):
         'score' : sentiment.score,
         'magnitude' : sentiment.magnitude
     }
-    with open('json/sentiment.json', 'w') as outfile:
+    with open('modules/json/sentiment.json', 'w') as outfile:
         json.dump(sentiment, outfile)

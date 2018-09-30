@@ -48,5 +48,5 @@ def summarize(text):
         'summary' : summary_sentences
     }
 
-    with open('json\summary.json', 'w') as outfile:
+    with open('modules/json/summary.json', 'w') as outfile:
         json.dump(summary, outfile)

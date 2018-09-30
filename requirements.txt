@@ -11,6 +11,7 @@ google-auth==1.5.1
 google-cloud-language==1.0.2
 googleapis-common-protos==1.5.3
 grpcio==1.15.0
+gsearch==1.6.0
 idna==2.7
 jieba3k==0.35.1
 lxml==4.2.5

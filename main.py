@@ -1,12 +1,15 @@
 from bs4 import BeautifulSoup
-from googlesearch import search
+from gsearch.googlesearch import search
 from newspaper import Article
 import datetime
 import json
 import nltk
+import os
 import re
 import requests
 
+# Set ENV_VAR for Google API Creds.
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="wtfthisarticle2-26eb8f0411b7.json"
 ## nltk.download('punkt')
 
 # Custom scripts
@@ -94,31 +97,13 @@ def getInitJSON(Url):
     if text is not None or text != '':
         summarize(text)
 
-    num_page = 2
-    search_results = google.search(title, num_page)
-    for result in search_results:
+    # Sentiment analysis
+    analyze(text)
+
+    ## Search google for related articles and record descriptions and links
+    results = search(title, num_results = 4)
+    for result in results:
         with open('modules/json/relatedLinks.json', 'w') as outfile:
             json.dump(result.link, outfile)
-
-    # Sentiment analysis
-    analyze(text);
-
-
-    ## Search google for related articles and record descriptions and links
-    num_page = 2
-    search_results = google.search(title, num_page)
-    for result in search_results:
-        with open('json/relatedLinks.json', 'w') as outfile:
-            json.dump(result.link, outfile)
-            json.dump(result.description, outfile)
-
-    ## Search google for related articles and record descriptions and links
-    num_page = 2
-    search_results = google.search(title, num_page)
-    for result in search_results:
-        with open('json/relatedLinks.json', 'w') as outfile:
-            json.dump(result.link, outfile)
-        with open('json/linkDescriptions.json', 'w') as outfile:
-            json.dump(result.description, outfile)
 
 getInitJSON(input("Enter a Url: \n"))

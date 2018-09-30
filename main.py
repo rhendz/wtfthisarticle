@@ -76,8 +76,8 @@ def getInitJSON(Url):
 
     publish_date = article.publish_date
     img_src = article.top_image
-    summary = article.summary
-    text = article.text
+    summary = article.summary.strip()
+    text = article.text.strip()
     summary = summarize(text)
 
     try:

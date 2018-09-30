@@ -1,0 +1,10 @@
+runtime: python3
+api_version: 1
+threadsafe: True
+
+handlers:
+- url: /
+  script: run.py
+
+- url: /related
+  script: run.py

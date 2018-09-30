@@ -1,18 +1,17 @@
-from typing import List, Any
-
 from bs4 import BeautifulSoup
+from googlesearch import search
 from newspaper import Article
-from google import google
-import requests
 import datetime
 import json
-import re
 import nltk
-nltk.download('punkt')
+import re
+import requests
+
+## nltk.download('punkt')
 
 # Custom scripts
-from summarize import *
-from sentiment import *
+from modules.summarize import *
+from modules.sentiment import *
 
 ## Useful for extracting author if newspaper fails
 AUTHOR_REGEX = re.compile('(author)|(byline)', re.I) # Ignore case
@@ -89,16 +88,16 @@ def getInitJSON(Url):
         pass # This is fine
     ## END BUILDING INITIAL ARTICLE
 
-    with open('json/init.json', 'w') as outfile:
+    with open('modules/json/init.json', 'w') as outfile:
         json.dump(article_data, outfile)
 
     if text is not None or text != '':
         summarize(text)
-        
+
     num_page = 2
     search_results = google.search(title, num_page)
     for result in search_results:
-        with open('json/relatedLinks.json', 'w') as outfile:
+        with open('modules/json/relatedLinks.json', 'w') as outfile:
             json.dump(result.link, outfile)
 
     # Sentiment analysis

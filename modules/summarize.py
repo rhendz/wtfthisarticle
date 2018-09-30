@@ -1,8 +1,8 @@
 # Handles summarization
 import heapq
 import nltk
-nltk.download('punkt')
-nltk.download('stopwords')
+## nltk.download('punkt')
+## nltk.download('stopwords')
 
 import json
 import re
@@ -44,7 +44,9 @@ def summarize(text):
 
     summary_sentences = heapq.nlargest(7, sentence_scores, key=sentence_scores.get)
 
-    summary = {}
-    summary['summary'] = ' '.join(summary_sentences)
-    with open('json/summary.json', 'w') as outfile:
+    summary = {
+        'summary' : summary_sentences
+    }
+
+    with open('json\summary.json', 'w') as outfile:
         json.dump(summary, outfile)

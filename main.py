@@ -9,7 +9,7 @@ import re
 import requests
 
 # Set ENV_VAR for Google API Creds.
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="wtfthisarticle2-26eb8f0411b7.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="wtfthisarticle3-f6d3d2a3b1f0.json"
 ## nltk.download('punkt')
 
 # Custom scripts
@@ -100,10 +100,11 @@ def getInitJSON(Url):
     # Sentiment analysis
     analyze(text)
 
-    ## Search google for related articles and record descriptions and links
-    results = search(title, num_results = 4)
+    ## Search google for related articles/links
+    json_results = {}
+    results = search(title, num_results=4)
     for result in results:
-        with open('modules/json/relatedLinks.json', 'w') as outfile:
-            json.dump(result.link, outfile)
+        json_results.update({result[0] : result[1]})
 
-getInitJSON(input("Enter a Url: \n"))
+    with open('modules/json/relatedLinks.json', 'a') as outfile:
+        json.dump(json_results, outfile)

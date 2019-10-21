@@ -21,7 +21,7 @@ Jinja2==2.10
 lxml==4.2.5
 MarkupSafe==1.0
 newspaper3k==0.2.8
-nltk==3.3
+nltk==3.4.5
 Pillow==5.2.0
 protobuf==3.6.1
 pyasn1==0.4.4
